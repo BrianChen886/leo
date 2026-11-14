@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="LEO: Latent Episodic Overview for Action Chunking Transformers. Memory for ACT on RMBench.">
+<title>LEO: Latent Episodic Overview for Action Chunking Transformers</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="icon" href="data:,">
+<style>
+/* Layout: centered paper-page column (860px), results and figures at full column width. */
+:root {
+  --bg: #FFFFFF;
+  --surface: #F6F8F7;
+  --fg: #16201C;
+  --muted: #5B6965;
+  --line: #D6DDD9;
+  --accent: #0F6E8C;
+  --accent-soft: #DCEDF2;
+  --warn: #9A6B16;
+  --warn-soft: #F7EBD3;
+  --font-display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  margin: 0; padding-block: 0 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(32px, 5.5vw, 50px); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 26px; font-weight: 600; margin-top: 56px; margin-bottom: 14px; }
+h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); }
+code, pre { font-family: var(--font-mono); font-size: 0.86em; }
+pre { background: var(--surface); border: 1px solid var(--line); padding: 12px 14px; overflow-x: auto; margin: 0; line-height: 1.5; }
+.wrap { max-width: 860px; margin: 0 auto; }
+header { padding-top: 64px; text-align: center; }
+.authors { margin-top: 22px; font-family: var(--font-display); font-size: 17px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; }
+.affil { color: var(--muted); font-family: var(--font-display); font-size: 15px; margin-top: 8px; }
+.links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+.btn {
+  font-family: var(--font-display); font-size: 15px; font-weight: 500; text-decoration: none; padding: 8px 16px;
+  border: 1px solid var(--accent); color: var(--accent); border-radius: 999px;
+}
+.btn.primary { background: var(--accent); color: var(--bg); }
+.btn.disabled { border-color: var(--line); color: var(--muted); pointer-events: none; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.method { border-top: 2px solid var(--line); padding-top: 14px; min-width: 0; }
+.method.ours { border-top-color: var(--accent); }
+.method .kind { font-family: var(--font-display); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.method p { font-size: 16px; }
+.pipe { width: 100%; height: auto; max-width: 100%; margin: 24px 0 6px; }
+.pipe text { font-family: var(--font-display); font-size: 13px; fill: var(--fg); }
+.pipe .sub { fill: var(--muted); font-size: 11.5px; }
+.pipe rect.step { fill: var(--surface); stroke: var(--line); }
+.pipe rect.new { stroke: var(--accent); }
+.pipe line, .pipe path { stroke: var(--muted); fill: none; stroke-width: 1.2; }
+table { border-collapse: collapse; width: 100%; font-family: var(--font-display); font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
+td.num, th.num { text-align: right; }
+tr.ours td { background: var(--accent-soft); }
+.tablewrap { overflow-x: auto; margin: 14px 0; }
+.caption { color: var(--muted); font-size: 14px; font-family: var(--font-display); margin-top: 4px; }
+.pill { display: inline-block; font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); vertical-align: middle; margin-left: 8px; }
+@media (prefers-reduced-motion: no-preference) { .btn { transition: background .15s, color .15s; } }
+
+.player { margin: 0; }
+.player.hero { margin-top: 40px; }
+.player video { display: block; width: 100%; height: auto; aspect-ratio: 1440 / 468; background: #111; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 10px; }
+.chip {
+  font-family: var(--font-display); font-size: 14px; padding: 6px 14px; border: 1px solid var(--line);
+  border-radius: 999px; background: var(--bg); color: var(--fg); cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 16px; margin: 10px 0 0; padding: 0; list-style: none; font-family: var(--font-display); font-size: 14px; }
+.outcomes .who { font-weight: 600; display: block; }
+.outcomes .what { color: var(--muted); }
+.task { margin-top: 34px; }
+.task > p { font-size: 16px; }
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 30px; margin: 18px 0 6px; }
+.panel h3 { font-family: var(--font-mono); font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+.row { padding: 4px 0; }
+.row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row .name { font-family: var(--font-display); font-size: 13px; color: var(--muted); line-height: 1.3; }
+.plot {
+  position: relative; height: 18px; margin-right: 44px; border-left: 1px solid var(--muted);
+  background: linear-gradient(var(--line), var(--line)) 50% 0 / 1px 100% no-repeat,
+              linear-gradient(var(--line), var(--line)) 100% 0 / 1px 100% no-repeat;
+}
+.plot .fill { position: absolute; left: 0; top: 2px; height: 14px; min-width: 2px; background: var(--accent); border-radius: 0 4px 4px 0; }
+.plot .ci { position: absolute; top: 8px; height: 2px; background: var(--fg); box-shadow: 0 0 0 1px var(--bg); }
+.plot .ci::before, .plot .ci::after { content: ""; position: absolute; top: -4px; width: 2px; height: 10px; background: var(--fg); }
+.plot .ci::before { left: 0; } .plot .ci::after { right: 0; }
+.plot .val { position: absolute; top: 0; line-height: 18px; padding-left: 8px; font-family: var(--font-display); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.plot .none { position: absolute; left: 8px; top: 0; line-height: 18px; font-family: var(--font-display); font-size: 13px; color: var(--muted); }
+.ticks { position: relative; height: 18px; margin-right: 44px; font-family: var(--font-display); font-size: 12px; color: var(--muted); }
+.ticks span { position: absolute; top: 2px; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--fg); color: var(--bg); font-family: var(--font-display); font-size: 13px; line-height: 1.4; padding: 6px 10px; border-radius: 6px; max-width: 280px; display: none; }
+td:first-child { font-variant-numeric: normal; }
+tr.ref td { color: var(--muted); }
+tr.sep td { border-top: 2px solid var(--line); }
+ul.findings { padding-left: 20px; margin: 0 0 14px; }
+ul.findings li { margin-bottom: 8px; }
+footer { color: var(--muted); font-family: var(--font-display); font-size: 14px; margin-top: 56px; }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <h1>LEO: Latent Episodic Overview for Action Chunking Transformers</h1>
+  <div class="authors">
+    <span>Ammaar Firozi</span><span>Jake D. Browning</span><span>Bo-Hung Chen</span>
+    <span>Yu-Lun Chou</span><span>Aaron Jacobs</span><span>Linh-Co Bui</span>
+  </div>
+  <div class="affil">Robotics Institute, Carnegie Mellon University</div>
+  <div class="links">
+    <span class="btn disabled">Paper (in preparation)</span>
+    <span class="btn disabled">Code (to be released)</span>
+    <a class="btn primary" href="#rollouts">Rollout videos</a>
+    <a class="btn" href="https://github.com/RoboTwin-Platform/RMBench">RMBench</a>
+  </div>
+  <figure class="player hero">
+    <video id="hero" src="videos/01_rearrange_blocks_seed100002.mp4" poster="videos/01_rearrange_blocks_seed100002.jpg" muted loop playsinline controls preload="metadata"></video>
+    <figcaption class="caption">Three policies on the same <code>rearrange_blocks</code> scene. Only the policy with memory completes the task.</figcaption>
+  </figure>
+</header>
+
+<main class="wrap">
+  <section>
+    <h2>Abstract</h2>
+    <p>Action Chunking with Transformers (ACT) is a strong, lightweight baseline for imitation-based manipulation, but it conditions only on the current observation. It fails on tasks where the correct action depends on something no longer visible: a reference object that was hidden, a button already pressed, a block that was moved.</p>
+    <p>LEO studies how to give ACT a memory of the episode. Our main variant, ACT-SMT, maintains a fixed-size memory state learned with Supervised Memory Training: a full-history Transformer teacher produces memory targets, and a small recurrent updater learns one-step transitions without backpropagation through time. The frozen updater runs online and feeds its memory to ACT as extra tokens. We compare it with a cross-attention memory over past frames in ACT's decoder, following Gated Memory Policy, with and without its learned gate.</p>
+    <p>On RMBench, a benchmark of nine memory-dependent dual-arm tasks, the always-on cross-attention memory raises success from 0 to 100 of 100 rollouts on <code>rearrange_blocks</code> and from 32 to 68 on <code>put_back_block</code> (training seed 0). The learned gate lowers both, and a control that remembers only past joint positions and time does as well as or better than image memory. No variant solves <code>observe_and_pickup</code>, where ACT-SMT has its only evaluation so far (6 of 100).</p>
+  </section>
+
+  <section>
+    <h2>Method</h2>
+    <div class="grid3">
+      <div class="method">
+        <div class="kind">Baseline</div>
+        <h3>ACT</h3>
+        <p>Predicts the next 50 actions from the current images and joint state. We run the stock RMBench code and our own re-implementation, which the memory variants build on.</p>
+      </div>
+      <div class="method">
+        <div class="kind">Comparison</div>
+        <h3>Cross-attention memory</h3>
+        <p>The first frame and every fourth past frame are cached as one token each and read by a cross-attention sublayer in the decoder. We test it always on, switched per step by a learned gate, with the first frame only, and with the images removed.</p>
+      </div>
+      <div class="method ours">
+        <div class="kind">Main method</div>
+        <h3>ACT-SMT</h3>
+        <p>A fixed-size memory z<sub>t</sub> summarizes the episode. A teacher encoder sees the full history; an updater learns to reproduce its next memory from the current one and the new frame. Only the updater runs at test time.</p>
+      </div>
+    </div>
+
+    <svg class="pipe" viewBox="0 0 1000 250" role="img" aria-label="ACT-SMT pipeline: SMT pretraining of encoder, decoder and updater, then ACT training and deployment with the frozen updater.">
+      <text x="0" y="18" font-weight="600">Stage 1: Supervised Memory Training</text>
+      <rect class="step" x="0" y="32" width="150" height="54" rx="6"/>
+      <text x="75" y="54" text-anchor="middle">Frames + joints</text>
+      <text x="75" y="72" text-anchor="middle" class="sub">x_0 ... x_t</text>
+      <line x1="150" y1="59" x2="178" y2="59"/><path d="M172 54 L180 59 L172 64"/>
+      <rect class="step new" x="182" y="32" width="170" height="54" rx="6"/>
+      <text x="267" y="54" text-anchor="middle">Teacher encoder</text>
+      <text x="267" y="72" text-anchor="middle" class="sub">full history, bidirectional</text>
+      <line x1="352" y1="59" x2="380" y2="59"/><path d="M374 54 L382 59 L374 64"/>
+      <rect class="step" x="384" y="32" width="120" height="54" rx="6"/>
+      <text x="444" y="54" text-anchor="middle">Memory z_t</text>
+      <text x="444" y="72" text-anchor="middle" class="sub">M tokens, fixed size</text>
+      <line x1="504" y1="59" x2="532" y2="59"/><path d="M526 54 L534 59 L526 64"/>
+      <rect class="step new" x="536" y="32" width="150" height="54" rx="6"/>
+      <text x="611" y="54" text-anchor="middle">Decoder</text>
+      <text x="611" y="72" text-anchor="middle" class="sub">predicts future frames</text>
+      <line x1="444" y1="86" x2="444" y2="124"/><path d="M439 118 L444 126 L449 118"/>
+      <rect class="step new" x="364" y="128" width="160" height="54" rx="6"/>
+      <text x="444" y="150" text-anchor="middle">Updater</text>
+      <text x="444" y="168" text-anchor="middle" class="sub">(z_t, x_t+1) to z_t+1</text>
+      <text x="536" y="160" class="sub">one-step supervision, then DMT on its own rollouts</text>
+
+      <text x="700" y="18" font-weight="600">Stage 2 and deployment</text>
+      <rect class="step" x="700" y="32" width="130" height="54" rx="6"/>
+      <text x="765" y="54" text-anchor="middle">New frame</text>
+      <text x="765" y="72" text-anchor="middle" class="sub">every control step</text>
+      <line x1="765" y1="86" x2="765" y2="124"/><path d="M760 118 L765 126 L770 118"/>
+      <rect class="step new" x="700" y="128" width="130" height="54" rx="6"/>
+      <text x="765" y="150" text-anchor="middle">Updater</text>
+      <text x="765" y="168" text-anchor="middle" class="sub">frozen</text>
+      <line x1="830" y1="155" x2="858" y2="155"/><path d="M852 150 L860 155 L852 160"/>
+      <rect class="step" x="862" y="128" width="130" height="54" rx="6"/>
+      <text x="927" y="150" text-anchor="middle">ACT</text>
+      <text x="927" y="168" text-anchor="middle" class="sub">+ z_t tokens</text>
+      <line x1="927" y1="182" x2="927" y2="218"/><path d="M922 212 L927 220 L932 212"/>
+      <text x="927" y="240" text-anchor="middle">Action chunk</text>
+    </svg>
+    <p class="caption">Outlined boxes are added by LEO. The teacher and decoder are used only during training.</p>
+  </section>
+
+  <section id="rollouts">
+    <h2>Rollout videos</h2>
+    <p>Each clip shows three policies on the same evaluation seed, so every panel starts from the same scene. The clips are unedited evaluation videos from the head camera.</p>
+    <div id="tasks"></div>
+  </section>
+
+  <section>
+    <h2>Results <span class="pill">Seed 0</span></h2>
+    <p>Success out of 100 rollouts per task. Every model uses RMBench's ACT recipe: trained from scratch for 6,000 epochs (30k steps) at batch size 8 on 40 demonstrations, with 10 held out, and evaluated with temporal aggregation on. Lines show 95% Wilson intervals.</p>
+    <div class="panels" id="panels"></div>
+    <div class="tablewrap">
+      <table id="results-table">
+        <thead><tr><th>Method</th><th class="num">rearrange_blocks</th><th class="num">observe_and_pickup</th><th class="num">put_back_block</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="caption">Successes out of 100 rollouts, training seed 0. ACT-SMT has been evaluated on <code>observe_and_pickup</code> only. The last two rows are the numbers reported in the RMBench paper.</p>
+
+    <h3 style="margin-top:30px">What the rollouts show</h3>
+    <ul class="findings">
+      <li><strong>Always-on memory fixes the two tasks that depend on one earlier event.</strong> On <code>rearrange_blocks</code> it places the first block and presses the button exactly once in all 100 rollouts. Plain ACT never places the first block.</li>
+      <li><strong>The learned gate hurts.</strong> On <code>rearrange_blocks</code> the gate was on for about 7% of steps and the policy pressed the button in 12 of 100 rollouts. On <code>put_back_block</code> the gated policy succeeds only when the block starts on the right mat.</li>
+      <li><strong>The gain does not need images.</strong> The arm-history control, which remembers only past joint positions and time, reaches 100 on both tasks.</li>
+      <li><strong>Without memory, ACT guesses one answer.</strong> On <code>put_back_block</code> plain ACT returns the block to the back mat in every rollout, so its 32 successes are exactly the episodes that started there. Always-on memory returns the block to the correct mat in all 68 rollouts where it moves the block, and never starts on the 32 back-mat episodes.</li>
+      <li><strong><code>observe_and_pickup</code> is unsolved.</strong> No model lifts the target in more than 6 of 100 rollouts.</li>
+      <li><strong>Seeds matter.</strong> Stock ACT scores 38, 0 and 0 on <code>rearrange_blocks</code> and 0, 49 and 0 on <code>put_back_block</code> across training seeds 0 to 2. Seeds 1 and 2 of the memory variants are not finished.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>BibTeX</h2>
+<pre>@misc{leo2026,
+  title  = {LEO: Latent Episodic Overview for Action Chunking Transformers},
+  author = {Firozi, Ammaar and Browning, Jake D. and Chen, Bo-Hung and Chou, Yu-Lun and Jacobs, Aaron and Bui, Linh-Co},
+  year   = {2026},
+  note   = {Course project, CMU 16-831 Introduction to Robot Learning}
+}</pre>
+  </section>
+
+  <section>
+    <h2>Acknowledgments</h2>
+    <p>RMBench provides the simulator, tasks, expert data pipeline, and evaluation harness. This project was done for CMU 16-831, Introduction to Robot Learning, Fall 2026.</p>
+  </section>
+  <footer>Last updated 2026-11-14.</footer>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const TASKS = [
+  { id: "rearrange_blocks",
+    text: "Move the block between the two mats onto the empty mat, press the button, then move the other block to the space between the mats.",
+    models: ["Stock ACT (RMBench code)", "Plain ACT (ours)", "GMP memory, always on"],
+    clips: [
+      { file: "01_rearrange_blocks_seed100002", label: "Seed 100002", out: [[0, "places block 1 but never presses the button"], [0, "does not place block 1"], [1, "completes the task"]] },
+      { file: "02_rearrange_blocks_seed100004", label: "Seed 100004", out: [[0, "places block 1 but never presses the button"], [0, "does not place block 1"], [1, "completes the task"]] },
+      { file: "03_rearrange_blocks_seed100000", label: "Seed 100000", out: [[1, "completes the task"], [0, "does not place block 1"], [1, "completes the task"]] }
+    ] },
+  { id: "put_back_block",
+    text: "A block starts on one of four mats. Move it to the center, press the button, then put it back on the mat it came from.",
+    models: ["Plain ACT (no memory)", "GMP memory, always on", "Arm-history control (no images)"],
+    clips: [
+      { file: "04_put_back_block_seed100003", label: "Starts left", out: [[0, "puts the block on the back mat"], [1, "returns the block to the left mat"], [1, "returns the block to the left mat"]] },
+      { file: "05_put_back_block_seed100000", label: "Starts right", out: [[0, "puts the block on the back mat"], [1, "returns the block to the right mat"], [1, "returns the block to the right mat"]] },
+      { file: "06_put_back_block_seed100007", label: "Starts front", out: [[0, "puts the block on the back mat"], [1, "returns the block to the front mat"], [1, "returns the block to the front mat"]] },
+      { file: "07_put_back_block_seed100002", label: "Starts back", out: [[1, "returns the block to the back mat"], [0, "never moves the block"], [1, "returns the block to the back mat"]] }
+    ] },
+  { id: "observe_and_pickup",
+    text: "A target object is shown on a shelf and then hidden by a screen. Pick up the matching object from five on the table.",
+    models: ["Plain ACT (no memory)", "GMP memory, always on", "ACT-SMT (recurrent memory)"],
+    clips: [
+      { file: "08_observe_and_pickup_seed100015", label: "Seed 100015", out: [[0, "does not lift any object"], [0, "picks up the wrong object"], [1, "picks up the object that was shown"]] },
+      { file: "09_observe_and_pickup_seed100033", label: "Seed 100033", out: [[0, "does not lift any object"], [0, "picks up the wrong object"], [0, "does not lift any object"]] }
+    ] }
+];
+
+const host = document.getElementById("tasks");
+for (const t of TASKS) {
+  const sec = document.createElement("div");
+  sec.className = "task";
+  sec.innerHTML = `<h3><code>${t.id}</code></h3><p>${t.text}</p>
+    <div class="chips" role="group" aria-label="Clips for ${t.id}"></div>
+    <figure class="player"><video controls muted playsinline preload="none"></video></figure>
+    <ul class="outcomes"></ul>`;
+  const chips = sec.querySelector(".chips"), video = sec.querySelector("video"), outs = sec.querySelector(".outcomes");
+  const show = (i, play) => {
+    const c = t.clips[i];
+    video.poster = `videos/${c.file}.jpg`;
+    video.src = `videos/${c.file}.mp4`;
+    outs.innerHTML = c.out.map((o, k) =>
+      `<li><span class="who">${t.models[k]}</span><span class="what">${o[0] ? "Success" : "Fail"}: ${o[1]}</span></li>`).join("");
+    chips.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-pressed", k === i ? "true" : "false"));
+    if (play) video.play().catch(() => {});
+  };
+  t.clips.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = c.label;
+    b.addEventListener("click", () => show(i, true));
+    chips.appendChild(b);
+  });
+  show(0, false);
+  host.appendChild(sec);
+}
+
+const hero = document.getElementById("hero");
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) hero.play().catch(() => {});
+
+const COLS = ["rearrange_blocks", "observe_and_pickup", "put_back_block"];
+const RESULTS = [
+  { name: "Stock ACT (RMBench code)", s: [38, 3, 0] },
+  { name: "Plain ACT (ours, no memory)", s: [0, 2, 32] },
+  { name: "GMP memory, always on", s: [100, 2, 68] },
+  { name: "GMP memory, gated", s: [9, 3, 20] },
+  { name: "First-frame memory", s: [9, 1, 0] },
+  { name: "Arm-history control (no images)", s: [100, 2, 100] },
+  { name: "ACT-SMT", s: [null, 6, null] }
+];
+const REFS = [
+  { name: "ACT, RMBench paper", s: [29, 1, 0] },
+  { name: "Mem-0, RMBench paper", s: [89, 4, 90] }
+];
+const N = 100;
+function wilson(s, n) {
+  const z = 1.96, p = s / n, d = 1 + z * z / n;
+  const c = (p + z * z / (2 * n)) / d, h = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d;
+  return [Math.max(0, 100 * (c - h)), Math.min(100, 100 * (c + h))];
+}
+
+const tb = document.querySelector("#results-table tbody");
+const cell = v => `<td class="num">${v === null ? "not run" : v}</td>`;
+for (const r of RESULTS) tb.insertAdjacentHTML("beforeend", `<tr${r.name === "ACT-SMT" ? ' class="ours"' : ""}><td>${r.name}</td>${r.s.map(cell).join("")}</tr>`);
+REFS.forEach((r, i) => tb.insertAdjacentHTML("beforeend", `<tr class="ref${i === 0 ? " sep" : ""}"><td>${r.name}</td>${r.s.map(cell).join("")}</tr>`));
+
+const panels = document.getElementById("panels"), tip = document.getElementById("tip");
+COLS.forEach((task, j) => {
+  let html = `<div class="panel"><h3>${task}</h3>`;
+  for (const r of RESULTS) {
+    const s = r.s[j];
+    if (s === null) {
+      html += `<div class="row" tabindex="0" data-tip="${r.name}, ${task}: not run yet"><div class="name">${r.name}</div><div class="plot"><span class="none">not run</span></div></div>`;
+      continue;
+    }
+    const [lo, hi] = wilson(s, N), rate = 100 * s / N;
+    html += `<div class="row" tabindex="0" data-tip="${r.name}, ${task}: ${s} of ${N} rollouts succeeded (95% interval ${Math.round(lo)} to ${Math.round(hi)}%)">
+      <div class="name">${r.name}</div>
+      <div class="plot"><div class="fill" style="width:${rate}%"></div><div class="ci" style="left:${lo}%;width:${hi - lo}%"></div><span class="val" style="left:${Math.max(hi, rate)}%">${s}</span></div></div>`;
+  }
+  html += `<div class="ticks"><span style="left:0">0</span><span style="left:50%">50</span><span style="left:100%">100%</span></div></div>`;
+  panels.insertAdjacentHTML("beforeend", html);
+});
+function place(el) {
+  const r = el.getBoundingClientRect();
+  tip.textContent = el.dataset.tip;
+  tip.style.display = "block";
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left)) + "px";
+  tip.style.top = (r.top - h - 6 < 8 ? r.bottom + 6 : r.top - h - 6) + "px";
+}
+panels.querySelectorAll(".row").forEach(el => {
+  el.addEventListener("mouseenter", () => place(el));
+  el.addEventListener("focus", () => place(el));
+  el.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+  el.addEventListener("blur", () => { tip.style.display = "none"; });
+});
+window.addEventListener("scroll", () => { tip.style.display = "none"; }, { passive: true });
+</script>
+</body>
+</html>
