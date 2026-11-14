@@ -137,8 +137,8 @@ footer { color: var(--muted); font-family: var(--font-display); font-size: 14px;
 <main class="wrap">
   <section>
     <h2>Abstract</h2>
-    <p>Action Chunking with Transformers (ACT) is a strong, lightweight baseline for imitation-based manipulation, but it conditions only on the current observation. It fails on tasks where the correct action depends on something no longer visible: a reference object that was hidden, a button already pressed, a block that was moved.</p>
-    <p>LEO studies how to give ACT a memory of the episode. Our main variant, ACT-SMT, maintains a fixed-size memory state learned with Supervised Memory Training: a full-history Transformer teacher produces memory targets, and a small recurrent updater learns one-step transitions without backpropagation through time. The frozen updater runs online and feeds its memory to ACT as extra tokens. We compare it with a cross-attention memory over past frames in ACT's decoder, following Gated Memory Policy, with and without its learned gate.</p>
+    <p>Action Chunking with Transformers (ACT) is a strong, lightweight baseline for imitation-based manipulation, but it conditions only on the current observation and has no mechanism for retaining information from earlier in an episode. It fails on tasks where the correct action depends on something no longer visible: a reference object that was hidden, a button already pressed, a block that was moved. Policies that add memory often rely on a vision-language model to summarize the history as selected frames and text, which is costly at inference time and loses information.</p>
+    <p>LEO augments ACT with explicit memory mechanisms learned from expert demonstrations alone, without a vision-language model. The first is a gated memory in ACT's decoder, following Gated Memory Policy: past frames are cached as one token each and read through cross-attention. The second, ACT-SMT, maintains a fixed-size memory state learned with Supervised Memory Training: a full-history Transformer teacher produces memory targets, and a small recurrent updater learns one-step transitions without backpropagation through time. The frozen updater runs online and feeds its memory to ACT as extra tokens.</p>
     <p>On RMBench, a benchmark of nine memory-dependent dual-arm tasks, the always-on cross-attention memory raises success from 0 to 100 of 100 rollouts on <code>rearrange_blocks</code> and from 32 to 68 on <code>put_back_block</code> (training seed 0). The learned gate lowers both, and a control that remembers only past joint positions and time does as well as or better than image memory. No variant solves <code>observe_and_pickup</code>, where ACT-SMT has its only evaluation so far (6 of 100).</p>
   </section>
 
@@ -150,13 +150,13 @@ footer { color: var(--muted); font-family: var(--font-display); font-size: 14px;
         <h3>ACT</h3>
         <p>Predicts the next 50 actions from the current images and joint state. We run the stock RMBench code and our own re-implementation, which the memory variants build on.</p>
       </div>
-      <div class="method">
-        <div class="kind">Comparison</div>
-        <h3>Cross-attention memory</h3>
+      <div class="method ours">
+        <div class="kind">Memory variant</div>
+        <h3>Gated memory</h3>
         <p>The first frame and every fourth past frame are cached as one token each and read by a cross-attention sublayer in the decoder. We test it always on, switched per step by a learned gate, with the first frame only, and with the images removed.</p>
       </div>
       <div class="method ours">
-        <div class="kind">Main method</div>
+        <div class="kind">Memory variant</div>
         <h3>ACT-SMT</h3>
         <p>A fixed-size memory z<sub>t</sub> summarizes the episode. A teacher encoder sees the full history; an updater learns to reproduce its next memory from the current one and the new frame. Only the updater runs at test time.</p>
       </div>
@@ -200,7 +200,7 @@ footer { color: var(--muted); font-family: var(--font-display); font-size: 14px;
       <line x1="927" y1="182" x2="927" y2="218"/><path d="M922 212 L927 220 L932 212"/>
       <text x="927" y="240" text-anchor="middle">Action chunk</text>
     </svg>
-    <p class="caption">Outlined boxes are added by LEO. The teacher and decoder are used only during training.</p>
+    <p class="caption">ACT-SMT pipeline. Outlined boxes are added by LEO. The teacher and decoder are used only during training.</p>
   </section>
 
   <section id="rollouts">
@@ -211,7 +211,7 @@ footer { color: var(--muted); font-family: var(--font-display); font-size: 14px;
 
   <section>
     <h2>Results <span class="pill">Seed 0</span></h2>
-    <p>Success out of 100 rollouts per task. Every model uses RMBench's ACT recipe: trained from scratch for 6,000 epochs (30k steps) at batch size 8 on 40 demonstrations, with 10 held out, and evaluated with temporal aggregation on. Lines show 95% Wilson intervals.</p>
+    <p>Success out of 100 rollouts per task. Every model uses RMBench's ACT recipe: trained from scratch for 6,000 epochs (30k steps) at batch size 8 on RMBench's 50 demonstrations per task (40 for training, 10 held out), and evaluated with temporal aggregation on. Lines show 95% Wilson intervals.</p>
     <div class="panels" id="panels"></div>
     <div class="tablewrap">
       <table id="results-table">
@@ -332,7 +332,7 @@ function wilson(s, n) {
 
 const tb = document.querySelector("#results-table tbody");
 const cell = v => `<td class="num">${v === null ? "not run" : v}</td>`;
-for (const r of RESULTS) tb.insertAdjacentHTML("beforeend", `<tr${r.name === "ACT-SMT" ? ' class="ours"' : ""}><td>${r.name}</td>${r.s.map(cell).join("")}</tr>`);
+for (const r of RESULTS) tb.insertAdjacentHTML("beforeend", `<tr><td>${r.name}</td>${r.s.map(cell).join("")}</tr>`);
 REFS.forEach((r, i) => tb.insertAdjacentHTML("beforeend", `<tr class="ref${i === 0 ? " sep" : ""}"><td>${r.name}</td>${r.s.map(cell).join("")}</tr>`));
 
 const panels = document.getElementById("panels"), tip = document.getElementById("tip");
