@@ -207,13 +207,13 @@
                   </li>
                   <li>
                     <b>The arm's own history is enough.</b> A memory of past joint positions only, with no images,
-                    scores 100 on both tasks. RMBench reports 89 and 90 for Mem-0<${Cite} k="rmbench" />.
+                    scores 100 on both tasks. Reported: 89 and 90 for Mem-0<${Cite} k="rmbench" />, 100 and 100 for IMPRINT<${Cite} k="imprint" />.
                   </li>
                   <li>
                     <b>Gating the memory hurts.</b> Letting the policy decide when to read memory<${Cite} k="gmp" /> drops the scores to 9 and 20.
                   </li>
                   <li>
-                    <b>Observe and Pick Up is unsolved.</b> Our best is 6% (ACT-SMT). The best RMBench reports is 9%<${Cite} k="rmbench" />.
+                    <b>Observe and Pick Up is unsolved.</b> Our best is 6% (ACT-SMT). The best RMBench reports is 9%<${Cite} k="rmbench" />, and IMPRINT also reports 9%<${Cite} k="imprint" />.
                   </li>
                 </ol>
                 <p className="caveat">
@@ -288,11 +288,12 @@
         <div className="container is-max-desktop">
           <h2 className="title is-3 has-text-centered">Results</h2>
           <p className="lede has-text-centered">
-            Success rate (%) over 100 rollouts: our runs next to the numbers reported in the RMBench paper<${Cite} k="rmbench" />. Bold is the best in each column.
+            Success rate (%) over 100 rollouts: our runs next to the numbers reported in the RMBench<${Cite} k="rmbench" /> and IMPRINT<${Cite} k="imprint" /> papers. Bold is the best in each column.
           </p>
           <p className="legend has-text-centered">
             <span><i className="swatch ours"></i>Ours (training seed 0)</span>
             <span><i className="swatch rmbench"></i>Reported by RMBench<${Cite} k="rmbench" /></span>
+            <span><i className="swatch imprint"></i>Reported by IMPRINT<${Cite} k="imprint" /></span>
           </p>
           <div className="table-container">
             <table className="table is-hoverable is-fullwidth results">
@@ -315,7 +316,9 @@
                             ${r.note && html`<span className="rownote">${r.note}</span>`}
                           </th>
                           <td className="src">
-                            ${r.source === 'ours' ? html`<span className="tag ours">Ours</span>` : html`<span className="tag rmbench">RMBench<${Cite} k="rmbench" /></span>`}
+                            ${r.source === 'ours'
+                              ? html`<span className="tag ours">Ours</span>`
+                              : html`<span className=${'tag ' + r.source}>${r.source === 'imprint' ? 'IMPRINT' : 'RMBench'}<${Cite} k=${r.source} /></span>`}
                           </td>
                           ${cols.map((c) => html`<${Cell} key=${c} value=${r[c]} source=${r.source} best=${r[c] === best[c]} />`)}
                         </tr>
@@ -334,7 +337,8 @@
                 <li><b>${D.policies.memory}</b> reads the memory at every step. <b>Gated</b> lets a learned gate decide when.</li>
                 <li><b>First-frame</b> stores only the first frame. <b>Arm-history</b> stores past joint positions and time, no images.</li>
                 <li>On Put Back Block, ${D.policies.ourAct} always returns the block to the back mat, so it succeeds only when the block started there.</li>
-                <li>RMBench rows are from Table 1 of the paper (arXiv v4) and were not rerun by us.</li>
+                <li>RMBench rows are from Table 1 of that paper (arXiv v4); IMPRINT rows are from its Table 10 (arXiv v1). We did not rerun either.</li>
+                <li>IMPRINT adds memory to Pi0.5, a pretrained vision-language-action model; our policies are ACT trained from scratch.</li>
               </ul>
             </div>
             <div className="column content" id="seeds">

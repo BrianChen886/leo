@@ -3,6 +3,7 @@
 :root {
   --ours: #2a78d6;
   --rmbench: #eb6834;
+  --imprint: #1baf7a;
   --good: #0a7a2a;
   --bad: #c23331;
   --muted: #6b6b6b;
@@ -278,6 +279,11 @@ body {
   background: var(--rmbench);
 }
 
+.swatch.imprint,
+.bar > span.imprint {
+  background: var(--imprint);
+}
+
 table.results th[scope='row'] {
   font-weight: 400;
 }
@@ -315,6 +321,10 @@ table.results .tag.ours {
 
 table.results .tag.rmbench {
   border-left-color: var(--rmbench);
+}
+
+table.results .tag.imprint {
+  border-left-color: var(--imprint);
 }
 
 table.results th.num,

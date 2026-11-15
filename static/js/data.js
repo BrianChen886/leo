@@ -36,6 +36,13 @@ window.LEO = {
       venue: 'arXiv:2606.06479, 2026',
       url: 'https://arxiv.org/abs/2606.06479',
     },
+    {
+      key: 'imprint',
+      authors: 'Y. Wu, R. Shah, S. Huang, S. A. Sontakke, H. Bharadhwaj, A. Bajcsy, M. Simchowitz, G. Shi',
+      title: 'Memory Without Curation: Learning Multi-Stream Latent Memory for Robot Policies',
+      venue: 'arXiv:2610.14406, 2026',
+      url: 'https://arxiv.org/abs/2610.14406',
+    },
   ],
 
   // Policy names used everywhere on the page.
@@ -69,6 +76,7 @@ window.LEO = {
 
   // Success rate (%) over 100 rollouts. null = not evaluated.
   // source 'ours': our runs, training seed 0. source 'rmbench': Table 1 of the RMBench paper (arXiv v4).
+  // source 'imprint': Table 10 of the IMPRINT paper (arXiv v1).
   results: [
     {
       group: 'ACT without memory',
@@ -98,6 +106,15 @@ window.LEO = {
         { label: 'MemER', source: 'rmbench', rearrange: 17, observe: 7, putback: 0 },
         { label: 'MemoryVLA', source: 'rmbench', rearrange: 22, observe: 0, putback: 50 },
         { label: 'Mem-0', source: 'rmbench', rearrange: 89, observe: 4, putback: 90 },
+      ],
+    },
+    {
+      // Table 10 of the IMPRINT paper (arXiv v1). IMPRINT adds memory to the Pi0.5 VLA.
+      group: 'IMPRINT',
+      rows: [
+        { label: 'Pi0.5, no memory', source: 'imprint', note: 'the base model IMPRINT builds on', rearrange: 63, observe: 8, putback: 20 },
+        { label: 'IMPRINT (full)', source: 'imprint', rearrange: 100, observe: 9, putback: 100 },
+        { label: 'IMPRINT (recurrent)', source: 'imprint', rearrange: 99, observe: 6, putback: 100 },
       ],
     },
   ],
