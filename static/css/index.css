@@ -362,6 +362,27 @@ table.results td.num.na {
   margin-top: 1rem;
 }
 
+#budget {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 4rem;
+}
+
+table.budget th[scope='row'] {
+  font-weight: 600;
+}
+
+table.budget td.ratio {
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.budget-notes {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .notes ul {
   font-size: 0.925rem;
   margin-left: 1.2rem;

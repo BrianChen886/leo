@@ -210,6 +210,9 @@
                     scores 100 on both tasks. Reported: 89 and 90 for Mem-0<${Cite} k="rmbench" />, 100 and 100 for IMPRINT<${Cite} k="imprint" />.
                   </li>
                   <li>
+                    <b>Level with IMPRINT on two tasks, on a far smaller budget.</b> IMPRINT<${Cite} k="imprint" /> fine-tunes a pretrained model of about 3.3B parameters on about 16.6M training samples. Ours is an ACT of about 80M parameters trained from scratch on about 240,000. <a href="#budget">Training budget ↓</a>
+                  </li>
+                  <li>
                     <b>Gating the memory hurts.</b> Letting the policy decide when to read memory<${Cite} k="gmp" /> drops the scores to 9 and 20.
                   </li>
                   <li>
@@ -349,6 +352,37 @@
                 <li>ACT-SMT has been evaluated on Observe and Pick Up only.</li>
               </ul>
             </div>
+          </div>
+          <h3 className="title is-5" id="budget">Training budget against IMPRINT</h3>
+          <p className="lede">
+            On Rearrange Blocks and Put Back Block our best policy and IMPRINT<${Cite} k="imprint" /> both score 100%. IMPRINT sees about 70 times more training samples, on a model about 40 times larger that was already pretrained.
+          </p>
+          <div className="table-container">
+            <table className="table is-fullwidth budget">
+              <thead>
+                <tr>${D.budget.columns.map((c, i) => html`<th key=${i} scope="col">${c}</th>`)}</tr>
+              </thead>
+              <tbody>
+                ${D.budget.rows.map(
+                  (r) => html`
+                    <tr key=${r[0]}>
+                      <th scope="row">${r[0]}</th>
+                      <td>${r[1]}</td>
+                      <td>${r[2]}</td>
+                      <td className="ratio">${r[3]}</td>
+                    </tr>
+                  `
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="content">
+            <ul className="budget-notes">
+              <li>Samples seen = gradient updates x batch size. Multiplying by model size gives a rough estimate of about 3,000 times less training compute for ours. IMPRINT's pretraining is not counted.</li>
+              <li>IMPRINT's updates and batch size are from Table 3 of its paper. Parameter counts are approximate and are not stated there.</li>
+              <li>Not like for like: IMPRINT is evaluated on all nine RMBench tasks; ours is one training seed on three.</li>
+              <li>We have not tested whether more training would raise our scores.</li>
+            </ul>
           </div>
           <p className="fine">
             Our training follows the RMBench ACT recipe<${Cite} k="rmbench" />: 6,000 epochs, batch size 8, 50

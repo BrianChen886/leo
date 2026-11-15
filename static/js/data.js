@@ -119,6 +119,20 @@ window.LEO = {
     },
   ],
 
+  // Training budget of our best policy against IMPRINT. IMPRINT figures: Tables 3 and 10 of its paper.
+  // Parameter counts are approximate and are not stated in the IMPRINT paper.
+  budget: {
+    columns: ['', 'ACT + arm-history memory (ours)', 'IMPRINT (full)', 'IMPRINT / ours'],
+    rows: [
+      ['Base policy', 'ACT, trained from scratch per task', 'Pi0.5 VLA, pretrained, then fine-tuned', ''],
+      ['Parameters (approx.)', '~80M', '~3.3B', '~40x'],
+      ['Gradient updates', '~30,000', '260,000 (160,000 + 100,000)', '~9x'],
+      ['Batch size', '8', '64', '8x'],
+      ['Training samples seen', '~240,000', '~16.6M', '~70x'],
+      ['Rearrange / Put Back / Observe (%)', '100 / 100 / 2', '100 / 100 / 9', ''],
+    ],
+  },
+
   // Each clip shows three policies side by side on the same evaluation seed.
   // panels: [policy key, succeeded?, what happened]
   heroClip: {
