@@ -174,85 +174,6 @@
     `;
   }
 
-  const FRAME_DIAGRAM = `
-    <rect class="step new" x="0" y="20" width="210" height="54" rx="6"/>
-    <text x="105" y="42" text-anchor="middle">Stored frames</text>
-    <text x="105" y="60" text-anchor="middle" class="sub">first frame + every 4th past frame</text>
-    <line x1="210" y1="47" x2="246" y2="47"/><path d="M240 42 L248 47 L240 52"/>
-    <rect class="step new" x="250" y="20" width="170" height="54" rx="6"/>
-    <text x="335" y="42" text-anchor="middle">Memory tokens</text>
-    <text x="335" y="60" text-anchor="middle" class="sub">one token per stored frame</text>
-    <line x1="420" y1="47" x2="456" y2="47"/><path d="M450 42 L458 47 L450 52"/>
-    <rect class="step new" x="460" y="20" width="230" height="54" rx="6"/>
-    <text x="575" y="42" text-anchor="middle">Memory cross-attention</text>
-    <text x="575" y="60" text-anchor="middle" class="sub">output multiplied by the gate</text>
-    <rect class="step new" x="770" y="20" width="150" height="54" rx="6"/>
-    <text x="845" y="42" text-anchor="middle">Gate</text>
-    <text x="845" y="60" text-anchor="middle" class="sub">from current observation</text>
-    <line x1="770" y1="47" x2="694" y2="47"/><path d="M700 42 L692 47 L700 52"/>
-    <line x1="575" y1="74" x2="575" y2="126"/><path d="M570 120 L575 128 L580 120"/>
-    <text x="587" y="105" class="sub">added to the action queries</text>
-    <rect class="step" x="0" y="130" width="210" height="54" rx="6"/>
-    <text x="105" y="152" text-anchor="middle">Current observation</text>
-    <text x="105" y="170" text-anchor="middle" class="sub">images + joint positions</text>
-    <line x1="210" y1="157" x2="246" y2="157"/><path d="M240 152 L248 157 L240 162"/>
-    <rect class="step" x="250" y="130" width="170" height="54" rx="6"/>
-    <text x="335" y="162" text-anchor="middle">ACT encoder</text>
-    <line x1="420" y1="157" x2="456" y2="157"/><path d="M450 152 L458 157 L450 162"/>
-    <rect class="step" x="460" y="130" width="230" height="54" rx="6"/>
-    <text x="575" y="162" text-anchor="middle">ACT decoder</text>
-    <line x1="690" y1="157" x2="766" y2="157"/><path d="M760 152 L768 157 L760 162"/>
-    <rect class="step" x="770" y="130" width="150" height="54" rx="6"/>
-    <text x="845" y="162" text-anchor="middle">Action chunk</text>`;
-
-  const SMT_DIAGRAM = `
-    <text x="0" y="18" class="hd">Stage 1: Supervised Memory Training</text>
-    <rect class="step" x="0" y="32" width="150" height="54" rx="6"/>
-    <text x="75" y="54" text-anchor="middle">Frames + joints</text>
-    <text x="75" y="72" text-anchor="middle" class="sub">x_0 ... x_t</text>
-    <line x1="150" y1="59" x2="178" y2="59"/><path d="M172 54 L180 59 L172 64"/>
-    <rect class="step new" x="182" y="32" width="170" height="54" rx="6"/>
-    <text x="267" y="54" text-anchor="middle">Teacher encoder</text>
-    <text x="267" y="72" text-anchor="middle" class="sub">full history, bidirectional</text>
-    <line x1="352" y1="59" x2="380" y2="59"/><path d="M374 54 L382 59 L374 64"/>
-    <rect class="step" x="384" y="32" width="120" height="54" rx="6"/>
-    <text x="444" y="54" text-anchor="middle">Memory z_t</text>
-    <text x="444" y="72" text-anchor="middle" class="sub">M tokens, fixed size</text>
-    <line x1="504" y1="59" x2="532" y2="59"/><path d="M526 54 L534 59 L526 64"/>
-    <rect class="step new" x="536" y="32" width="150" height="54" rx="6"/>
-    <text x="611" y="54" text-anchor="middle">Decoder</text>
-    <text x="611" y="72" text-anchor="middle" class="sub">predicts future frames</text>
-    <line x1="444" y1="86" x2="444" y2="124"/><path d="M439 118 L444 126 L449 118"/>
-    <rect class="step new" x="364" y="128" width="160" height="54" rx="6"/>
-    <text x="444" y="150" text-anchor="middle">Updater</text>
-    <text x="444" y="168" text-anchor="middle" class="sub">(z_t, x_t+1) to z_t+1</text>
-    <text x="444" y="202" text-anchor="middle" class="sub">one-step supervision, then DMT on its own rollouts</text>
-    <text x="700" y="18" class="hd">Stage 2 and deployment</text>
-    <rect class="step" x="700" y="32" width="130" height="54" rx="6"/>
-    <text x="765" y="54" text-anchor="middle">New frame</text>
-    <text x="765" y="72" text-anchor="middle" class="sub">every control step</text>
-    <line x1="765" y1="86" x2="765" y2="124"/><path d="M760 118 L765 126 L770 118"/>
-    <rect class="step new" x="700" y="128" width="130" height="54" rx="6"/>
-    <text x="765" y="150" text-anchor="middle">Updater</text>
-    <text x="765" y="168" text-anchor="middle" class="sub">frozen</text>
-    <line x1="830" y1="155" x2="858" y2="155"/><path d="M852 150 L860 155 L852 160"/>
-    <rect class="step" x="862" y="128" width="130" height="54" rx="6"/>
-    <text x="927" y="150" text-anchor="middle">ACT</text>
-    <text x="927" y="168" text-anchor="middle" class="sub">+ z_t tokens</text>
-    <line x1="927" y1="182" x2="927" y2="218"/><path d="M922 212 L927 220 L932 212"/>
-    <text x="927" y="240" text-anchor="middle">Action chunk</text>`;
-
-  function Figure({ svg, viewBox, label, caption }) {
-    return html`
-      <figure className="method-figure">
-        <div className="pipe-wrap">
-          <svg className="pipe" viewBox=${viewBox} role="img" aria-label=${label} dangerouslySetInnerHTML=${{ __html: svg }}></svg>
-        </div>
-        <figcaption className="is-size-6 has-text-centered">${caption}</figcaption>
-      </figure>
-    `;
-  }
-
   function Method() {
     return html`
       <section className="section" id="method">
@@ -269,49 +190,46 @@
                 <h3 className="title is-5">Frame memory</h3>
                 <p>
                   Following Gated Memory Policy<${Cite} k="gmp" />, the first frame and every fourth past frame
-                  of the episode are stored as one token each. A token encodes the camera images, the joint
-                  positions and the time step of its frame. A cross-attention sublayer added to the ACT decoder
-                  reads these tokens, and its output is added to the action queries. A gate computed from the
-                  current observation multiplies this output, so that with the gate closed the model reduces to
-                  the original ACT.
+                  of the episode are stored as one token each, so that at step <i>t</i> the memory is
+                  <i> M<sub>t</sub></i> = {<i>m</i><sub>0</sub>, <i>m</i><sub>4</sub>, <i>m</i><sub>8</sub>, ...}.
+                  A token <i>m<sub>k</sub></i> encodes the camera images, the joint positions and the time step
+                  of frame <i>k</i>. A cross-attention sublayer added to the ACT decoder reads the memory and
+                  updates the action queries <i>q</i> as
                 </p>
-                <p>We evaluate four versions of this memory:</p>
-                <ul>
-                  <li>${D.policies.memory}: the gate is fixed open, so the memory is read at every step.</li>
-                  <li>${D.policies.gated}: the gate is calibrated as in Gated Memory Policy and then frozen; it decides at each step whether the memory is read.</li>
-                  <li>${D.policies.firstFrame}: only the first frame is stored.</li>
-                  <li>${D.policies.armHistory}: the image features are removed from every token, so the memory holds only past joint positions and time steps.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <${Figure}
-            svg=${FRAME_DIAGRAM}
-            viewBox="0 0 1000 195"
-            label="Frame memory: stored frames become memory tokens, which a gated cross-attention sublayer adds to the ACT decoder."
-            caption="Figure 1. Frame memory. Shaded blocks are added to ACT."
-          />
-          <div className="columns is-centered">
-            <div className="column is-four-fifths">
-              <div className="content has-text-justified">
+                <p className="eq">
+                  <i>q'</i> = <i>q</i> + <i>g<sub>t</sub></i> CrossAttn(<i>q</i>, <i>M<sub>t</sub></i>),
+                </p>
+                <p>
+                  where the gate <i>g<sub>t</sub></i> is 0 or 1 and is computed from the current observation.
+                  With the gate closed the model reduces to the original ACT.
+                </p>
+                <p>
+                  We evaluate four versions of this memory. In ${D.policies.memory} the gate is fixed open, so
+                  the memory is read at every step. In ${D.policies.gated} the gate is calibrated as in Gated
+                  Memory Policy and then frozen, and it decides at each step whether the memory is read.
+                  ${' '}${D.policies.firstFrame} stores only the first frame. In ${D.policies.armHistory} the image
+                  features are removed from every token, so the memory holds only past joint positions and
+                  time steps.
+                </p>
                 <h3 className="title is-5">Latent memory (ACT-SMT)</h3>
                 <p>
-                  The second variant summarizes the episode in a fixed-size latent memory z<sub>t</sub>.
-                  Following Supervised Memory Training<${Cite} k="smt" />, a bidirectional Transformer encoder
-                  that sees the full history produces the memory, a causal decoder predicts future observations
-                  from it, and a small recurrent updater is trained with one-step supervision to map the
-                  current memory and the next observation to the next memory. The updater is then frozen and
-                  run online, and its memory is given to ACT as additional input tokens.
+                  The second variant summarizes the episode in a fixed-size latent memory
+                  <i> z<sub>t</sub></i>. Following Supervised Memory Training<${Cite} k="smt" />, a bidirectional
+                  Transformer encoder that sees the full history produces the memory, a causal decoder predicts
+                  future observations from it, and a small recurrent updater <i>f</i> is trained with one-step
+                  supervision to map the current memory and the next observation <i>x</i><sub><i>t</i>+1</sub> to
+                  the next memory:
+                </p>
+                <p className="eq">
+                  <i>z</i><sub><i>t</i>+1</sub> = <i>f</i>(<i>z<sub>t</sub></i>, <i>x</i><sub><i>t</i>+1</sub>).
+                </p>
+                <p>
+                  The encoder and decoder are used only during pretraining. The updater is then frozen and run
+                  online, and its memory is given to ACT as additional input tokens.
                 </p>
               </div>
             </div>
           </div>
-          <${Figure}
-            svg=${SMT_DIAGRAM}
-            viewBox="0 0 1000 250"
-            label="ACT-SMT pipeline: SMT pretraining of encoder, decoder and updater, then ACT training and deployment with the frozen updater."
-            caption="Figure 2. ACT-SMT. The encoder and decoder are used only during pretraining; the frozen updater runs at test time."
-          />
         </div>
       </section>
     `;
@@ -319,7 +237,7 @@
 
   function Cell({ value, best }) {
     if (value === null || value === undefined) {
-      return html`<td className="num na" title="Not evaluated">-</td>`;
+      return html`<td className="num na" title="Not evaluated">n/a</td>`;
     }
     return html`<td className="num">${best ? html`<b>${value}</b>` : value}</td>`;
   }
@@ -350,7 +268,7 @@
                 <table className="table is-fullwidth results">
                   <caption>
                     Table 1. Success rate (%) over 100 rollouts. The best result in each column is in bold.
-                    ACT-SMT was evaluated on Observe and Pick Up only.
+                    ACT-SMT was evaluated on Observe and Pick Up only (n/a elsewhere).
                   </caption>
                   <thead>
                     <tr>
