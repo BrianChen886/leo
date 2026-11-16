@@ -1,19 +1,14 @@
 /* Nerfies template base (Bulma) plus the pieces this page adds. */
 
 :root {
-  --ours: #2a78d6;
-  --rmbench: #eb6834;
-  --imprint: #1baf7a;
   --good: #0a7a2a;
   --bad: #c23331;
   --muted: #6b6b6b;
   --line: #dbdbdb;
-  --soft: #f5f5f5;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4rem;
 }
 
 body {
@@ -44,28 +39,13 @@ body {
   margin: 5px 3px;
 }
 
-.hero#summary .hero-body {
-  padding-bottom: 1.5rem;
-}
-
 .teaser .hero-body {
   padding-top: 0;
   padding-bottom: 1rem;
 }
 
-.section {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
-.lede {
-  color: var(--muted);
-  margin-bottom: 1rem;
-}
-
-.fine {
-  color: var(--muted);
-  font-size: 0.875rem;
+.teaser-caption {
+  margin-top: 1rem;
 }
 
 .cite {
@@ -73,115 +53,7 @@ body {
   white-space: nowrap;
 }
 
-/* ---------- sticky section nav ---------- */
-
-.topnav {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
-  font-family: 'Google Sans', sans-serif;
-}
-
-.topnav-inner {
-  display: flex;
-  align-items: center;
-  height: 3rem;
-  padding: 0 1rem;
-}
-
-.topnav-brand {
-  font-weight: 700;
-  color: #363636;
-  letter-spacing: 0.04em;
-}
-
-.topnav-links {
-  display: flex;
-  gap: 0.25rem;
-  margin-left: auto;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.topnav-links a {
-  color: var(--muted);
-  font-size: 0.9rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.topnav-links a:hover {
-  color: #363636;
-}
-
-.topnav-links a.on {
-  color: #fff;
-  background: #363636;
-}
-
-/* ---------- bottom line up front ---------- */
-
-.bluf {
-  max-width: 44rem;
-  margin: 0 auto 1.5rem !important;
-  line-height: 1.4;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.stat {
-  background: var(--soft);
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-}
-
-.stat-label,
-.stat-sub {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.stat-value {
-  font-size: 1.9rem;
-  font-weight: 700;
-  line-height: 1.3;
-  color: #363636;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-value .arrow {
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.caption {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
-
-.findings li {
-  margin-bottom: 0.5rem;
-}
-
-.caveat {
-  padding: 0.6rem 0.9rem;
-  border-left: 3px solid var(--line);
-  background: var(--soft);
-  font-size: 0.9rem;
-}
-
-/* ---------- clips ---------- */
+/* ---------- videos ---------- */
 
 .clip {
   margin: 0;
@@ -193,6 +65,7 @@ body {
   gap: 0.5rem;
   margin-bottom: 0.4rem;
   font-family: 'Noto Sans', sans-serif;
+  text-align: left;
 }
 
 .clip-label {
@@ -248,40 +121,14 @@ body {
   margin: 0 auto 0.75rem;
 }
 
-/* ---------- results ---------- */
+/* ---------- tables ---------- */
 
-.legend {
-  font-size: 0.875rem;
-  margin-bottom: 0.75rem;
-}
-
-.legend > span {
-  display: inline-block;
-  margin: 0 0.75rem;
-}
-
-.swatch {
-  display: inline-block;
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 3px;
-  margin-right: 0.4rem;
-  vertical-align: -1px;
-}
-
-.swatch.ours,
-.bar > span.ours {
-  background: var(--ours);
-}
-
-.swatch.rmbench,
-.bar > span.rmbench {
-  background: var(--rmbench);
-}
-
-.swatch.imprint,
-.bar > span.imprint {
-  background: var(--imprint);
+table.results caption,
+table.budget caption {
+  caption-side: top;
+  text-align: left;
+  font-size: 0.9rem;
+  padding-bottom: 0.5rem;
 }
 
 table.results th[scope='row'] {
@@ -289,110 +136,34 @@ table.results th[scope='row'] {
 }
 
 table.results tr.group th {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: 400;
+  font-style: italic;
   color: var(--muted);
-  padding-top: 1.1rem;
-  border-bottom-width: 1px;
-}
-
-table.results tr.group:hover {
-  background: none;
-}
-
-.rownote {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-table.results .tag {
-  font-size: 0.75rem;
-  background: var(--soft);
-  border-left: 3px solid var(--line);
-  border-radius: 3px;
-}
-
-table.results .tag.ours {
-  border-left-color: var(--ours);
-}
-
-table.results .tag.rmbench {
-  border-left-color: var(--rmbench);
-}
-
-table.results .tag.imprint {
-  border-left-color: var(--imprint);
 }
 
 table.results th.num,
 table.results td.num {
-  text-align: right;
-  width: 19%;
-  min-width: 6.5rem;
+  text-align: center;
   font-variant-numeric: tabular-nums;
-}
-
-table.results td.num.best .val {
-  font-weight: 700;
 }
 
 table.results td.num.na {
   color: var(--muted);
 }
 
-.bar {
-  display: block;
-  height: 4px;
-  margin-top: 3px;
-  background: #ededed;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.bar > span {
-  display: block;
-  height: 100%;
-  border-radius: 2px;
-}
-
-.notes {
-  margin-top: 1rem;
-}
-
-#budget {
-  margin-top: 2rem;
-  margin-bottom: 0.5rem;
-  scroll-margin-top: 4rem;
-}
-
 table.budget th[scope='row'] {
-  font-weight: 600;
+  font-weight: 400;
 }
 
-table.budget td.ratio {
-  font-weight: 700;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
+/* ---------- method figures ---------- */
 
-.budget-notes {
-  font-size: 0.9rem;
-  color: var(--muted);
+.method-figure {
+  margin: 0.5rem 0 2rem;
 }
-
-.notes ul {
-  font-size: 0.925rem;
-  margin-left: 1.2rem;
-}
-
-/* ---------- method ---------- */
 
 .pipe-wrap {
   overflow-x: auto;
-  margin: 0.5rem 0 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .pipe {
@@ -418,13 +189,13 @@ table.budget td.ratio {
 }
 
 .pipe rect.step {
-  fill: #f5f5f5;
-  stroke: #b5b5b5;
+  fill: #fff;
+  stroke: #7a7a7a;
 }
 
 .pipe rect.new {
-  fill: #eef6fc;
-  stroke: #3273dc;
+  fill: #ededed;
+  stroke: #7a7a7a;
 }
 
 .pipe line,
@@ -436,10 +207,6 @@ table.budget td.ratio {
 
 /* ---------- references ---------- */
 
-.refs li {
-  scroll-margin-top: 4rem;
-}
-
 .refs li:target {
   background: #fffbe6;
 }
@@ -447,14 +214,6 @@ table.budget td.ratio {
 /* ---------- small screens ---------- */
 
 @media (max-width: 640px) {
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
   .clip-policy {
     font-size: 0.75rem;
   }
@@ -467,25 +226,9 @@ table.budget td.ratio {
     display: none;
   }
 
-  .topnav-brand {
-    display: none;
-  }
-
-  .topnav-links {
-    margin-left: -0.5rem;
-  }
-}
-
-@media (max-width: 640px) {
   table.results th,
   table.results td {
     padding: 0.4rem 0.35rem;
     font-size: 0.85rem;
-  }
-
-  table.results th.num,
-  table.results td.num {
-    min-width: 3.75rem;
-    width: auto;
   }
 }

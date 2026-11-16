@@ -5,7 +5,7 @@ Source of the project page for "LEO: Latent Episodic Overview for Action Chunkin
 
 - `index.html`: page shell. No build step; React and htm are loaded from a CDN.
 - `static/js/data.js`: all content (authors, results table, clips, references). Edit numbers and citations here.
-- `static/js/app.js`: React components (section nav, summary, rollout picker, results table, method tabs).
+- `static/js/app.js`: React components (header, abstract, method, results tables, rollout videos, references).
 - `static/css/index.css`: page styles on top of the Nerfies template (Bulma).
 - `videos/`: side-by-side rollout clips and their poster images.
 

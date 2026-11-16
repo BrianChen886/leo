@@ -47,10 +47,10 @@ window.LEO = {
 
   // Policy names used everywhere on the page.
   policies: {
-    rmbenchAct: 'RMBench ACT',
-    ourAct: 'ACT in our implementation',
-    memory: 'ACT + memory',
-    gated: 'ACT + gated memory',
+    rmbenchAct: 'ACT (official code)',
+    ourAct: 'ACT (our implementation)',
+    memory: 'ACT + frame memory',
+    gated: 'ACT + gated frame memory',
     firstFrame: 'ACT + first-frame memory',
     armHistory: 'ACT + arm-history memory',
     smt: 'ACT-SMT',
@@ -75,67 +75,64 @@ window.LEO = {
   ],
 
   // Success rate (%) over 100 rollouts. null = not evaluated.
-  // source 'ours': our runs, training seed 0. source 'rmbench': Table 1 of the RMBench paper (arXiv v4).
-  // source 'imprint': Table 10 of the IMPRINT paper (arXiv v1).
+  // Our runs: training seed 0. RMBench rows: Table 1 of the RMBench paper (arXiv v4).
+  // IMPRINT rows: Table 10 of the IMPRINT paper (arXiv v1).
   results: [
     {
-      group: 'ACT without memory',
+      group: 'Ours (training seed 0)',
       rows: [
-        { label: 'ACT', source: 'rmbench', rearrange: 29, observe: 1, putback: 0 },
-        { policy: 'rmbenchAct', source: 'ours', note: 'official code, our run', rearrange: 38, observe: 3, putback: 0 },
-        { policy: 'ourAct', source: 'ours', rearrange: 0, observe: 2, putback: 32 },
+        { policy: 'rmbenchAct', rearrange: 38, observe: 3, putback: 0 },
+        { policy: 'ourAct', rearrange: 0, observe: 2, putback: 32 },
+        { policy: 'memory', rearrange: 100, observe: 2, putback: 68 },
+        { policy: 'gated', rearrange: 9, observe: 3, putback: 20 },
+        { policy: 'firstFrame', rearrange: 9, observe: 1, putback: 0 },
+        { policy: 'armHistory', rearrange: 100, observe: 2, putback: 100 },
+        { policy: 'smt', rearrange: null, observe: 6, putback: null },
       ],
     },
     {
-      group: 'ACT with memory',
+      group: 'Reported in RMBench',
+      cite: 'rmbench',
       rows: [
-        { policy: 'memory', source: 'ours', rearrange: 100, observe: 2, putback: 68 },
-        { policy: 'gated', source: 'ours', rearrange: 9, observe: 3, putback: 20 },
-        { policy: 'firstFrame', source: 'ours', rearrange: 9, observe: 1, putback: 0 },
-        { policy: 'armHistory', source: 'ours', rearrange: 100, observe: 2, putback: 100 },
-        { policy: 'smt', source: 'ours', rearrange: null, observe: 6, putback: null },
+        { label: 'ACT', rearrange: 29, observe: 1, putback: 0 },
+        { label: 'DP', rearrange: 0, observe: 1, putback: 0 },
+        { label: 'Pi0.5', rearrange: 13, observe: 9, putback: 11 },
+        { label: 'X-VLA', rearrange: 13, observe: 9, putback: 18 },
+        { label: 'QwenOFT', rearrange: 0, observe: 0, putback: 0 },
+        { label: 'MemER', rearrange: 17, observe: 7, putback: 0 },
+        { label: 'MemoryVLA', rearrange: 22, observe: 0, putback: 50 },
+        { label: 'Mem-0', rearrange: 89, observe: 4, putback: 90 },
       ],
     },
     {
-      group: 'Other policies evaluated by RMBench',
+      group: 'Reported in IMPRINT',
+      cite: 'imprint',
       rows: [
-        { label: 'DP', source: 'rmbench', rearrange: 0, observe: 1, putback: 0 },
-        { label: 'Pi0.5', source: 'rmbench', rearrange: 13, observe: 9, putback: 11 },
-        { label: 'X-VLA', source: 'rmbench', rearrange: 13, observe: 9, putback: 18 },
-        { label: 'QwenOFT', source: 'rmbench', rearrange: 0, observe: 0, putback: 0 },
-        { label: 'MemER', source: 'rmbench', rearrange: 17, observe: 7, putback: 0 },
-        { label: 'MemoryVLA', source: 'rmbench', rearrange: 22, observe: 0, putback: 50 },
-        { label: 'Mem-0', source: 'rmbench', rearrange: 89, observe: 4, putback: 90 },
-      ],
-    },
-    {
-      // Table 10 of the IMPRINT paper (arXiv v1). IMPRINT adds memory to the Pi0.5 VLA.
-      group: 'IMPRINT',
-      rows: [
-        { label: 'Pi0.5, no memory', source: 'imprint', note: 'the base model IMPRINT builds on', rearrange: 63, observe: 8, putback: 20 },
-        { label: 'IMPRINT (full)', source: 'imprint', rearrange: 100, observe: 9, putback: 100 },
-        { label: 'IMPRINT (recurrent)', source: 'imprint', rearrange: 99, observe: 6, putback: 100 },
+        { label: 'Pi0.5 (no memory)', rearrange: 63, observe: 8, putback: 20 },
+        { label: 'IMPRINT (full)', rearrange: 100, observe: 9, putback: 100 },
+        { label: 'IMPRINT (recurrent)', rearrange: 99, observe: 6, putback: 100 },
       ],
     },
   ],
 
-  // Training budget of our best policy against IMPRINT. IMPRINT figures: Tables 3 and 10 of its paper.
+  // Training budget of ACT + arm-history memory against IMPRINT. IMPRINT figures: Tables 3 and 10 of its paper.
   // Parameter counts are approximate and are not stated in the IMPRINT paper.
   budget: {
-    columns: ['', 'ACT + arm-history memory (ours)', 'IMPRINT (full)', 'IMPRINT / ours'],
+    columns: ['', 'ACT + arm-history memory (ours)', 'IMPRINT (full)'],
     rows: [
-      ['Base policy', 'ACT, trained from scratch per task', 'Pi0.5 VLA, pretrained, then fine-tuned', ''],
-      ['Parameters (approx.)', '~80M', '~3.3B', '~40x'],
-      ['Gradient updates', '~30,000', '260,000 (160,000 + 100,000)', '~9x'],
-      ['Batch size', '8', '64', '8x'],
-      ['Training samples seen', '~240,000', '~16.6M', '~70x'],
-      ['Rearrange / Put Back / Observe (%)', '100 / 100 / 2', '100 / 100 / 9', ''],
+      ['Base policy', 'ACT, trained from scratch per task', 'Pi0.5 VLA, pretrained, then fine-tuned'],
+      ['Parameters (approx.)', '80M', '3.3B'],
+      ['Gradient updates', '30,000', '260,000'],
+      ['Batch size', '8', '64'],
+      ['Training samples seen', '240,000', '16.6M'],
+      ['Rearrange / Put Back / Observe (%)', '100 / 100 / 2', '100 / 100 / 9'],
     ],
   },
 
   // Each clip shows three policies side by side on the same evaluation seed.
   // panels: [policy key, succeeded?, what happened]
   heroClip: {
+    label: 'Seed 100002',
     file: '01_rearrange_blocks_seed100002',
     panels: [
       ['rmbenchAct', false, 'never presses the button'],
@@ -175,7 +172,7 @@ window.LEO = {
     ],
     putback: [
       {
-        label: 'Starts left',
+        label: 'Block starts on the left mat',
         file: '04_put_back_block_seed100003',
         panels: [
           ['ourAct', false, 'puts it on the back mat'],
@@ -184,7 +181,7 @@ window.LEO = {
         ],
       },
       {
-        label: 'Starts right',
+        label: 'Block starts on the right mat',
         file: '05_put_back_block_seed100000',
         panels: [
           ['ourAct', false, 'puts it on the back mat'],
@@ -193,7 +190,7 @@ window.LEO = {
         ],
       },
       {
-        label: 'Starts front',
+        label: 'Block starts on the front mat',
         file: '06_put_back_block_seed100007',
         panels: [
           ['ourAct', false, 'puts it on the back mat'],
@@ -202,7 +199,7 @@ window.LEO = {
         ],
       },
       {
-        label: 'Starts back',
+        label: 'Block starts on the back mat',
         file: '07_put_back_block_seed100002',
         panels: [
           ['ourAct', true, 'returns it to the back mat'],
@@ -213,7 +210,7 @@ window.LEO = {
     ],
     observe: [
       {
-        label: 'ACT-SMT succeeds',
+        label: 'Seed 100015',
         file: '08_observe_and_pickup_seed100015',
         panels: [
           ['ourAct', false, 'does not lift any object'],
@@ -222,7 +219,7 @@ window.LEO = {
         ],
       },
       {
-        label: 'All fail',
+        label: 'Seed 100033',
         file: '09_observe_and_pickup_seed100033',
         panels: [
           ['ourAct', false, 'does not lift any object'],
