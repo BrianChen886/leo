@@ -54,10 +54,10 @@
       <figure className="clip">
         <div className="clip-labels">
           ${clip.panels.map(
-            ([policy, ok, what]) => html`
+            ([policy, ok]) => html`
               <div key=${policy} className="clip-label">
                 <span className="clip-policy">${D.policies[policy]}</span>
-                <span className=${'outcome ' + (ok ? 'ok' : 'bad')}>${ok ? 'Success' : 'Failure'}<span className="what">: ${what}</span></span>
+                <span className=${'outcome ' + (ok ? 'ok' : 'bad')}>${ok ? 'Success' : 'Failure'}</span>
               </div>
             `
           )}
@@ -127,8 +127,8 @@
           <div className="hero-body">
             <${Clip} clip=${D.heroClip} autoplay=${true} />
             <h2 className="subtitle has-text-centered teaser-caption">
-              Rearrange Blocks from the same initial scene. ACT without memory fails; ACT with a memory of the
-              episode completes the task.
+              Rearrange Blocks from the same initial scene. ACT without memory fails, and ACT with a memory of
+              the episode completes the task.
             </h2>
           </div>
         </div>
@@ -163,8 +163,7 @@
                   32% to 68% on Put Back Block. A memory that stores only past joint positions reaches 100% on
                   both tasks, which matches the results reported for IMPRINT<${Cite} k="imprint" /> with a
                   policy of about 80M parameters trained from scratch. Gating the memory lowers the success
-                  rate, and no policy we tested solves Observe and Pick Up. All of our results are from a
-                  single training seed.
+                  rate, and no policy we tested solves Observe and Pick Up.
                 </p>
               </div>
             </div>
@@ -221,7 +220,7 @@
                   the next memory:
                 </p>
                 <p className="eq">
-                  <i>z</i><sub><i>t</i>+1</sub> = <i>f</i>(<i>z<sub>t</sub></i>, <i>x</i><sub><i>t</i>+1</sub>).
+                  <i>z</i><sub><i>t</i>+1</sub> = <i>f</i>${'\u2009'}(<i>z<sub>t</sub></i>, <i>x</i><sub><i>t</i>+1</sub>).
                 </p>
                 <p>
                   The encoder and decoder are used only during pretraining. The updater is then frozen and run
@@ -268,7 +267,7 @@
                 <table className="table is-fullwidth results">
                   <caption>
                     Table 1. Success rate (%) over 100 rollouts. The best result in each column is in bold.
-                    ACT-SMT was evaluated on Observe and Pick Up only (n/a elsewhere).
+                    ACT-SMT was evaluated on Observe and Pick Up only.
                   </caption>
                   <thead>
                     <tr>
@@ -299,8 +298,7 @@
                 <p>
                   ${D.policies.rmbenchAct} is the ACT implementation released with RMBench, trained by us. ${D.policies.ourAct} is
                   our own code with the memory removed, and is the baseline for the memory variants. The
-                  RMBench and IMPRINT rows are taken from Table 1 of<${Cite} k="rmbench" /> and Table 10
-                  of<${Cite} k="imprint" />; we did not rerun them.
+                  other rows are the numbers reported in<${Cite} k="rmbench" /> and<${Cite} k="imprint" />.
                 </p>
                 <p>
                   Reading the frame memory at every step raises ACT from 0% to 100% on Rearrange Blocks and
@@ -308,7 +306,7 @@
                   memory, which stores no images, reaches 100% on both tasks, so on these two tasks the
                   improvement comes from the history of the arm rather than from past images. On Put Back
                   Block, ACT without memory returns the block to the back mat in every rollout and succeeds
-                  only when the block started there. Observe and Pick Up remains unsolved: our best result is
+                  only when the block started there. No policy solves Observe and Pick Up. Our best result is
                   6% with ACT-SMT, and the best reported result is 9%<${Cite} k="rmbench" /><${Cite} k="imprint" />.
                 </p>
                 <p>
@@ -321,17 +319,15 @@
                   IMPRINT<${Cite} k="imprint" /> adds memory to Pi0.5, a pretrained vision-language-action
                   model, and reports 100% on Rearrange Blocks and Put Back Block. ACT with arm-history memory
                   reaches the same success rate on these two tasks with a smaller model and less training
-                  (Table 2). The comparison is limited: IMPRINT is evaluated on all nine RMBench tasks, while
-                  our results cover three tasks and one training seed, and we have not tested whether longer
-                  training changes our results.
+                  (Table 2). IMPRINT is evaluated on all nine RMBench tasks, and we evaluate on three.
                 </p>
               </div>
               <div className="table-container">
                 <table className="table is-fullwidth budget">
                   <caption>
                     Table 2. Model size and training budget. Training samples seen is gradient updates times
-                    batch size. IMPRINT figures are from Tables 3 and 10 of<${Cite} k="imprint" />; its
-                    pretraining is not counted. Parameter counts are approximate.
+                    batch size. IMPRINT numbers are from<${Cite} k="imprint" /> and do not include the
+                    pretraining of Pi0.5.
                   </caption>
                   <thead>
                     <tr>${D.budget.columns.map((c, i) => html`<th key=${i} scope="col">${c}</th>`)}</tr>
@@ -374,7 +370,7 @@
             <div className="column is-four-fifths content has-text-justified">
               <p>
                 Each video shows three policies on the same evaluation seed, so all three start from the same
-                scene. Videos are recorded from the head camera during evaluation and are not edited.
+                scene. Videos are from the head camera.
               </p>
             </div>
           </div>

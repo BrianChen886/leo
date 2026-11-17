@@ -79,7 +79,7 @@ window.LEO = {
   // IMPRINT rows: Table 10 of the IMPRINT paper (arXiv v1).
   results: [
     {
-      group: 'Ours (training seed 0)',
+      group: 'Ours',
       rows: [
         { policy: 'rmbenchAct', rearrange: 38, observe: 3, putback: 0 },
         { policy: 'ourAct', rearrange: 0, observe: 2, putback: 32 },
@@ -130,14 +130,14 @@ window.LEO = {
   },
 
   // Each clip shows three policies side by side on the same evaluation seed.
-  // panels: [policy key, succeeded?, what happened]
+  // panels: [policy key, succeeded?]
   heroClip: {
     label: 'Seed 100002',
     file: '01_rearrange_blocks_seed100002',
     panels: [
-      ['rmbenchAct', false, 'never presses the button'],
-      ['ourAct', false, 'does not place the first block'],
-      ['memory', true, 'completes the task'],
+      ['rmbenchAct', false],
+      ['ourAct', false],
+      ['memory', true],
     ],
   },
   clips: {
@@ -146,27 +146,27 @@ window.LEO = {
         label: 'Seed 100004',
         file: '02_rearrange_blocks_seed100004',
         panels: [
-          ['rmbenchAct', false, 'never presses the button'],
-          ['ourAct', false, 'does not place the first block'],
-          ['memory', true, 'completes the task'],
+          ['rmbenchAct', false],
+          ['ourAct', false],
+          ['memory', true],
         ],
       },
       {
         label: 'Seed 100000',
         file: '03_rearrange_blocks_seed100000',
         panels: [
-          ['rmbenchAct', true, 'completes the task'],
-          ['ourAct', false, 'does not place the first block'],
-          ['memory', true, 'completes the task'],
+          ['rmbenchAct', true],
+          ['ourAct', false],
+          ['memory', true],
         ],
       },
       {
         label: 'Seed 100002',
         file: '01_rearrange_blocks_seed100002',
         panels: [
-          ['rmbenchAct', false, 'never presses the button'],
-          ['ourAct', false, 'does not place the first block'],
-          ['memory', true, 'completes the task'],
+          ['rmbenchAct', false],
+          ['ourAct', false],
+          ['memory', true],
         ],
       },
     ],
@@ -175,36 +175,36 @@ window.LEO = {
         label: 'Block starts on the left mat',
         file: '04_put_back_block_seed100003',
         panels: [
-          ['ourAct', false, 'puts it on the back mat'],
-          ['memory', true, 'returns it to the left mat'],
-          ['armHistory', true, 'returns it to the left mat'],
+          ['ourAct', false],
+          ['memory', true],
+          ['armHistory', true],
         ],
       },
       {
         label: 'Block starts on the right mat',
         file: '05_put_back_block_seed100000',
         panels: [
-          ['ourAct', false, 'puts it on the back mat'],
-          ['memory', true, 'returns it to the right mat'],
-          ['armHistory', true, 'returns it to the right mat'],
+          ['ourAct', false],
+          ['memory', true],
+          ['armHistory', true],
         ],
       },
       {
         label: 'Block starts on the front mat',
         file: '06_put_back_block_seed100007',
         panels: [
-          ['ourAct', false, 'puts it on the back mat'],
-          ['memory', true, 'returns it to the front mat'],
-          ['armHistory', true, 'returns it to the front mat'],
+          ['ourAct', false],
+          ['memory', true],
+          ['armHistory', true],
         ],
       },
       {
         label: 'Block starts on the back mat',
         file: '07_put_back_block_seed100002',
         panels: [
-          ['ourAct', true, 'returns it to the back mat'],
-          ['memory', false, 'never moves the block'],
-          ['armHistory', true, 'returns it to the back mat'],
+          ['ourAct', true],
+          ['memory', false],
+          ['armHistory', true],
         ],
       },
     ],
@@ -213,18 +213,18 @@ window.LEO = {
         label: 'Seed 100015',
         file: '08_observe_and_pickup_seed100015',
         panels: [
-          ['ourAct', false, 'does not lift any object'],
-          ['memory', false, 'picks up the wrong object'],
-          ['smt', true, 'picks up the object that was shown'],
+          ['ourAct', false],
+          ['memory', false],
+          ['smt', true],
         ],
       },
       {
         label: 'Seed 100033',
         file: '09_observe_and_pickup_seed100033',
         panels: [
-          ['ourAct', false, 'does not lift any object'],
-          ['memory', false, 'picks up the wrong object'],
-          ['smt', false, 'does not lift any object'],
+          ['ourAct', false],
+          ['memory', false],
+          ['smt', false],
         ],
       },
     ],

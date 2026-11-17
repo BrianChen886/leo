@@ -93,10 +93,6 @@ body {
   color: var(--bad);
 }
 
-.outcome .what {
-  color: var(--muted);
-}
-
 /* The source videos are 1440x468 with a 108px label bar on top; crop it off. */
 .clip-frame {
   position: relative;
@@ -179,10 +175,6 @@ table.budget th[scope='row'] {
 
   .outcome {
     font-size: 0.7rem;
-  }
-
-  .outcome .what {
-    display: none;
   }
 
   table.results th,
