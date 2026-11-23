@@ -6,7 +6,9 @@
   const D = window.LEO;
 
   const refNumber = (key) => D.references.findIndex((r) => r.key === key) + 1;
-  const taskById = (id) => D.tasks.find((t) => t.id === id);
+  // Video tabs: the table's tasks plus any video-only task (its name and goal are given in videoTasks).
+  const videoTasks = D.videoTasks.map((v) => Object.assign({}, D.tasks.find((t) => t.id === v.id), v));
+  const taskById = (id) => videoTasks.find((t) => t.id === id);
 
   /* ---------- small pieces ---------- */
 
@@ -155,15 +157,15 @@
                   time and loses information by compressing spatio-temporal features into natural language.
                 </p>
                 <p>
-                  We augment ACT with two memory mechanisms, a frame memory read through cross-attention
-                  following Gated Memory Policy<${Cite} k="gmp" /> and a recurrent latent memory trained with
-                  Supervised Memory Training<${Cite} k="smt" />, and evaluate them on three tasks from
-                  RMBench<${Cite} k="rmbench" />, a benchmark of memory-dependent bimanual manipulation. With
-                  the frame memory, the success rate of ACT rises from 0% to 100% on Rearrange Blocks and from
-                  32% to 68% on Put Back Block. A memory that stores only past joint positions reaches 100% on
-                  both tasks, which matches the results reported for IMPRINT<${Cite} k="imprint" /> with a
-                  policy of about 80M parameters trained from scratch. Gating the memory lowers the success
-                  rate, and no policy we tested solves Observe and Pick Up.
+                  We add three kinds of memory to ACT: a frame memory read through cross-attention, following
+                  Gated Memory Policy<${Cite} k="gmp" />; a recurrent latent memory trained with Supervised Memory
+                  Training<${Cite} k="smt" />; and a memory head that predicts where the robot's next contact
+                  will be and gives that point to ACT as a goal. We evaluate them on three tasks from
+                  RMBench<${Cite} k="rmbench" />, a benchmark of memory-dependent bimanual manipulation. Averaged
+                  over three training seeds, a memory that stores only past joint positions and time raises ACT
+                  from 0% to 72% on Rearrange Blocks and from 11% to 100% on Put Back Block, ahead of the same
+                  memory with images (51% and 68%). Gating the memory lowers the success rate. On Observe and
+                  Pick Up, where ACT without memory scores 1-3%, the memory head reaches 10-16% in one seed.
                 </p>
               </div>
             </div>
@@ -184,7 +186,7 @@
                 <p>
                   ACT<${Cite} k="act" /> predicts a chunk of future actions from the current camera images and
                   joint positions. We keep the policy and its training recipe unchanged and add a memory of the
-                  episode in two ways. The two variants are trained and evaluated separately.
+                  episode in three ways, each trained and evaluated separately.
                 </p>
                 <h3 className="title is-5">Frame memory</h3>
                 <p>
@@ -226,6 +228,25 @@
                   The encoder and decoder are used only during pretraining. The updater is then frozen and run
                   online, and its memory is given to ACT as additional input tokens.
                 </p>
+                <h3 className="title is-5">Memory head</h3>
+                <p>
+                  The third variant separates remembering from acting. A small memory head (about 1M parameters)
+                  reads frozen DINOv2 features of the head camera, keeps a memory of the episode, and predicts
+                  where the robot's next contact will be: a gripper closing or opening, as a cell of the camera
+                  image. ACT receives this point, lifted to 3D, and the head's confidence as one extra input
+                  token. In ${D.policies.headB}, ACT is trained first on the true next-contact image point and then on
+                  the head's predictions; in ${D.policies.headA} it sees only the predictions.
+                </p>
+                <figure className="memviz">
+                  <video controls loop muted playsInline preload="none" poster="./videos/memory_head_viz_observe.jpg" src="./videos/memory_head_viz_observe.mp4"></video>
+                  <figcaption>
+                    The memory head on a held-out Observe and Pick Up demonstration. Left: head camera. Right:
+                    the head's predicted next contact (heat map, white circle) and where the robot later grasps
+                    (green cross). It finds the object that matches the one on the shelf and keeps pointing at
+                    it after the wall hides the shelf. On held-out demonstrations it picks the right object in
+                    87% of decisions.
+                  </figcaption>
+                </figure>
               </div>
             </div>
           </div>
@@ -234,11 +255,22 @@
     `;
   }
 
+  // A reported number, or a list of our per-seed results (shown as the mean, with the seeds below).
+  const mean = (v) => (Array.isArray(v) ? v.reduce((a, b) => a + b, 0) / v.length : v);
+
   function Cell({ value, best }) {
     if (value === null || value === undefined) {
       return html`<td className="num na" title="Not evaluated">n/a</td>`;
     }
-    return html`<td className="num">${best ? html`<b>${value}</b>` : value}</td>`;
+    const m = Math.round(mean(value));
+    const shown = best ? html`<b>${m}</b>` : m;
+    if (!Array.isArray(value)) return html`<td className="num">${shown}</td>`;
+    return html`
+      <td className="num">
+        ${shown}
+        <span className="seeds">${value.length > 1 ? value.join(' / ') : '1 seed'}</span>
+      </td>
+    `;
   }
 
   function Results() {
@@ -246,7 +278,7 @@
     const all = D.results.reduce((acc, g) => acc.concat(g.rows), []);
     const best = {};
     cols.forEach((c) => {
-      best[c] = Math.max.apply(null, all.map((r) => (r[c] === null ? -1 : r[c])));
+      best[c] = Math.max.apply(null, all.map((r) => (r[c] == null || (Array.isArray(r[c]) && r[c].length < 3) ? -1 : Math.round(mean(r[c])))));
     });
     return html`
       <section className="section" id="results">
@@ -266,8 +298,9 @@
               <div className="table-container">
                 <table className="table is-fullwidth results">
                   <caption>
-                    Table 1. Success rate (%) over 100 rollouts. The best result in each column is in bold.
-                    ACT-SMT was evaluated on Observe and Pick Up only.
+                    Table 1. Success rate (%) over 100 rollouts. For our policies the large number is the mean
+                    over training seeds and the small numbers are seeds 0 / 1 / 2. The best result in each
+                    column is in bold (single-seed results excluded). ACT-SMT was evaluated on Observe and Pick Up only.
                   </caption>
                   <thead>
                     <tr>
@@ -285,7 +318,7 @@
                           (r) => html`
                             <tr key=${r.policy || r.label}>
                               <th scope="row">${r.label || D.policies[r.policy]}</th>
-                              ${cols.map((c) => html`<${Cell} key=${c} value=${r[c]} best=${r[c] === best[c]} />`)}
+                              ${cols.map((c) => html`<${Cell} key=${c} value=${r[c]} best=${r[c] != null && !(Array.isArray(r[c]) && r[c].length < 3) && Math.round(mean(r[c])) === best[c]} />`)}
                             </tr>
                           `
                         )}
@@ -297,53 +330,34 @@
               <div className="content has-text-justified">
                 <p>
                   ${D.policies.rmbenchAct} is the ACT implementation released with RMBench, trained by us. ${D.policies.ourAct} is
-                  our own code with the memory removed, and is the baseline for the memory variants. The
-                  other rows are the numbers reported in<${Cite} k="rmbench" /> and<${Cite} k="imprint" />.
+                  our own code with the memory removed, and is the baseline for the frame and latent memories.
+                  The other rows are the numbers reported in<${Cite} k="rmbench" /> and<${Cite} k="imprint" />.
                 </p>
                 <p>
-                  Reading the frame memory at every step raises ACT from 0% to 100% on Rearrange Blocks and
-                  from 32% to 68% on Put Back Block. With the gate, these fall to 9% and 20%. The arm-history
-                  memory, which stores no images, reaches 100% on both tasks, so on these two tasks the
-                  improvement comes from the history of the arm rather than from past images. On Put Back
-                  Block, ACT without memory returns the block to the back mat in every rollout and succeeds
-                  only when the block started there. No policy solves Observe and Pick Up. Our best result is
-                  6% with ACT-SMT, and the best reported result is 9%<${Cite} k="rmbench" /><${Cite} k="imprint" />.
+                  The arm-history memory, which stores no images, is the strongest variant on the two block
+                  tasks: 72% on Rearrange Blocks and 100% on Put Back Block, where it succeeds for every seed.
+                  The frame memory with images scores 51% and 68%, so on these tasks the gain comes from the
+                  history of the arm rather than from past images. On Put Back Block, the frame memory returns
+                  the block to the right mat whenever it picks it up, but in seed 0 it never picks it up when
+                  the block starts on the back mat. With a learned gate, success falls to 10% and 17%; on Rearrange Blocks
+                  the gate opened on only 7% of steps (seed 0).
                 </p>
                 <p>
-                  Results vary across training seeds. ${D.policies.rmbenchAct} scores 38%, 0% and 0% on
-                  Rearrange Blocks and 0%, 49% and 0% on Put Back Block for seeds 0, 1 and 2. The memory
-                  variants have been trained with seed 0 only.
+                  Results vary across training seeds, for ACT without memory as well as with it. The official
+                  ACT code scores 38%, 0% and 0% on Rearrange Blocks, and the frame memory 100%, 45% and 8%
+                  (48% and 58% for two more seeds).
                 </p>
-                <h3 className="title is-5">Comparison with IMPRINT</h3>
                 <p>
-                  IMPRINT<${Cite} k="imprint" /> adds memory to Pi0.5, a pretrained vision-language-action
-                  model, and reports 100% on Rearrange Blocks and Put Back Block. ACT with arm-history memory
-                  reaches the same success rate on these two tasks with a smaller model and less training
-                  (Table 2). IMPRINT is evaluated on all nine RMBench tasks, and we evaluate on three.
+                  Observe and Pick Up remains hard for every method; the best reported result is
+                  9%<${Cite} k="rmbench" /><${Cite} k="imprint" />. The memory head reaches 10-16% in one seed.
+                  Given the true grasp point instead of a prediction, ACT reaches 18%, so grasping the varied
+                  objects limits this task as much as memory does.
                 </p>
-              </div>
-              <div className="table-container">
-                <table className="table is-fullwidth budget">
-                  <caption>
-                    Table 2. Model size and training budget. Training samples seen is gradient updates times
-                    batch size. IMPRINT numbers are from<${Cite} k="imprint" /> and do not include the
-                    pretraining of Pi0.5.
-                  </caption>
-                  <thead>
-                    <tr>${D.budget.columns.map((c, i) => html`<th key=${i} scope="col">${c}</th>`)}</tr>
-                  </thead>
-                  <tbody>
-                    ${D.budget.rows.map(
-                      (r) => html`
-                        <tr key=${r[0]}>
-                          <th scope="row">${r[0]}</th>
-                          <td>${r[1]}</td>
-                          <td>${r[2]}</td>
-                        </tr>
-                      `
-                    )}
-                  </tbody>
-                </table>
+                <p>
+                  We also ran one seed on Blocks Ranking Try, a long-horizon task with up to 3,500 steps. ACT
+                  without memory scores 0%, the frame memory 44%, and the arm-history memory 99%. RMBench
+                  reports 0% for ACT and 18% for Mem-0<${Cite} k="rmbench" />.
+                </p>
               </div>
             </div>
           </div>
@@ -353,7 +367,7 @@
   }
 
   function Videos() {
-    const [taskId, setTaskId] = useState(D.tasks[0].id);
+    const [taskId, setTaskId] = useState(videoTasks[0].id);
     const [index, setIndex] = useState(0);
     const task = taskById(taskId);
     const clips = D.clips[taskId];
@@ -370,11 +384,12 @@
             <div className="column is-four-fifths content has-text-justified">
               <p>
                 Each video shows three policies on the same evaluation seed, so all three start from the same
-                scene. Videos are from the head camera.
+                scene. Videos are from the head camera, except the ego-view clips; policies are from training
+                seed 0.
               </p>
             </div>
           </div>
-          <${Tabs} items=${D.tasks} value=${taskId} onChange=${pick} label="Task" />
+          <${Tabs} items=${videoTasks} value=${taskId} onChange=${pick} label="Task" />
           <p className="goal has-text-centered">${task.goal}</p>
           <div className="buttons is-centered" role="group" aria-label="Evaluation scene">
             ${clips.map(

@@ -119,8 +119,7 @@ body {
 
 /* ---------- tables ---------- */
 
-table.results caption,
-table.budget caption {
+table.results caption {
   caption-side: top;
   text-align: left;
   font-size: 0.9rem;
@@ -145,10 +144,6 @@ table.results td.num {
 
 table.results td.num.na {
   color: var(--muted);
-}
-
-table.budget th[scope='row'] {
-  font-weight: 400;
 }
 
 /* ---------- equations ---------- */
@@ -182,4 +177,32 @@ table.budget th[scope='row'] {
     padding: 0.4rem 0.35rem;
     font-size: 0.85rem;
   }
+}
+
+/* Per-seed results under the mean in Table 1. */
+.results .seeds {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Memory-head visualization in the method section (960x360: camera | prediction). */
+.memviz {
+  margin: 1rem 0;
+}
+
+.memviz video {
+  width: 100%;
+  aspect-ratio: 960 / 360;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid #bbb;
+  background: #000;
+}
+
+.memviz figcaption {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
 }

@@ -54,6 +54,9 @@ window.LEO = {
     firstFrame: 'ACT + first-frame memory',
     armHistory: 'ACT + arm-history memory',
     smt: 'ACT-SMT',
+    headB: 'ACT + memory head',
+    headA: 'ACT + memory head, predicted goals only',
+    headOracle: 'ACT + memory head, given the true goal',
   },
 
   tasks: [
@@ -74,20 +77,35 @@ window.LEO = {
     },
   ],
 
+  // Tasks with videos: the three above plus a long-horizon task evaluated with training seed 0 only.
+  videoTasks: [
+    { id: 'rearrange' },
+    { id: 'putback' },
+    { id: 'observe' },
+    {
+      id: 'ranking',
+      name: 'Blocks Ranking Try',
+      goal: 'Long-horizon task: put the blocks in the correct order within 3,500 steps. Demonstrations are 550 to 2,400 steps long.',
+    },
+  ],
+
   // Success rate (%) over 100 rollouts. null = not evaluated.
-  // Our runs: training seed 0. RMBench rows: Table 1 of the RMBench paper (arXiv v4).
-  // IMPRINT rows: Table 10 of the IMPRINT paper (arXiv v1).
+  // Our runs: one value per training seed (0, 1, 2); the table shows the mean and the seeds.
+  // Source: docs/results_30k.md (v4.1, temporal aggregation on) and results/memhead_* in the LEO code repo.
+  // RMBench rows: Table 1 of the RMBench paper (arXiv v4). IMPRINT rows: Table 10 of the IMPRINT paper (arXiv v1).
   results: [
     {
       group: 'Ours',
       rows: [
-        { policy: 'rmbenchAct', rearrange: 38, observe: 3, putback: 0 },
-        { policy: 'ourAct', rearrange: 0, observe: 2, putback: 32 },
-        { policy: 'memory', rearrange: 100, observe: 2, putback: 68 },
-        { policy: 'gated', rearrange: 9, observe: 3, putback: 20 },
-        { policy: 'firstFrame', rearrange: 9, observe: 1, putback: 0 },
-        { policy: 'armHistory', rearrange: 100, observe: 2, putback: 100 },
-        { policy: 'smt', rearrange: null, observe: 6, putback: null },
+        { policy: 'rmbenchAct', rearrange: [38, 0, 0], observe: [3, 5, 1], putback: [0, 49, 0] },
+        { policy: 'ourAct', rearrange: [0, 0, 0], observe: [2, 0, 3], putback: [32, 0, 0] },
+        { policy: 'memory', rearrange: [100, 45, 8], observe: [2, 2, 2], putback: [68, 68, 68] },
+        { policy: 'gated', rearrange: [9, 19, 1], observe: [3, 1, 3], putback: [20, 0, 31] },
+        { policy: 'firstFrame', rearrange: [9, 19, 15], observe: [1, 0, 2], putback: [0, 17, 0] },
+        { policy: 'armHistory', rearrange: [100, 65, 50], observe: [2], putback: [100, 100, 100] },
+        { policy: 'smt', rearrange: null, observe: [6], putback: null },
+        { policy: 'headB', rearrange: [6], observe: [16], putback: [68] },
+        { policy: 'headA', rearrange: [11], observe: [10], putback: [0] },
       ],
     },
     {
@@ -114,20 +132,6 @@ window.LEO = {
       ],
     },
   ],
-
-  // Training budget of ACT + arm-history memory against IMPRINT. IMPRINT figures: Tables 3 and 10 of its paper.
-  // Parameter counts are approximate and are not stated in the IMPRINT paper.
-  budget: {
-    columns: ['', 'ACT + arm-history memory (ours)', 'IMPRINT (full)'],
-    rows: [
-      ['Base policy', 'ACT, trained from scratch per task', 'Pi0.5 VLA, pretrained, then fine-tuned'],
-      ['Parameters (approx.)', '80M', '3.3B'],
-      ['Gradient updates', '30,000', '260,000'],
-      ['Batch size', '8', '64'],
-      ['Training samples seen', '240,000', '16.6M'],
-      ['Rearrange / Put Back / Observe (%)', '100 / 100 / 2', '100 / 100 / 9'],
-    ],
-  },
 
   // Each clip shows three policies side by side on the same evaluation seed.
   // panels: [policy key, succeeded?]
@@ -225,6 +229,44 @@ window.LEO = {
           ['ourAct', false],
           ['memory', false],
           ['smt', false],
+        ],
+      },
+      {
+        label: 'Ego view, seed 100000',
+        file: '13_observe_and_pickup_ego_seed100000',
+        panels: [
+          ['headA', true],
+          ['headB', true],
+          ['headOracle', false],
+        ],
+      },
+      {
+        label: 'Ego view, seed 100001',
+        file: '14_observe_and_pickup_ego_seed100001',
+        panels: [
+          ['headA', false],
+          ['headB', false],
+          ['headOracle', true],
+        ],
+      },
+    ],
+    ranking: [
+      {
+        label: 'Seed 100000',
+        file: '10_blocks_ranking_try_seed100000',
+        panels: [
+          ['ourAct', false],
+          ['memory', true],
+          ['armHistory', true],
+        ],
+      },
+      {
+        label: 'Seed 100001',
+        file: '12_blocks_ranking_try_seed100001',
+        panels: [
+          ['ourAct', false],
+          ['memory', false],
+          ['armHistory', true],
         ],
       },
     ],
